@@ -167,7 +167,7 @@ def solve(a,b,back=0):
     else: P = perms(tuple(a))
     c = r = 0
     N = len(P)
-    div = ([1]*6 + [10,100,1000])[n]
+    div = ([1]*7 + [100,1000])[n]
     for ns in P:
         if not back and n>7: print(ns)
         v = (c*div)//N
@@ -186,6 +186,7 @@ def solve(a,b,back=0):
             if back: return s
             print(s[1:-1])
             return 1
+    print("No solution")
     return 0
 
 # EXAMPLE
