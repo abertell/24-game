@@ -1,5 +1,5 @@
 # 24-game
-Fast 24 game solver in Python, feasible for up to 8 numbers.
+Fast 24 game solver in Python, feasible for up to 8 numbers (realistically 7).
 
 Allowed operations are +, -, \*, /, ^. No fractional exponentiation, since Python has no idea how to evaluate (-8)\*\*(1/3), and I'm not rewriting exponentiation from the ground up (yet).
 
