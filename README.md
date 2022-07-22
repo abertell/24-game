@@ -1,7 +1,7 @@
 # 24-game
 24 game solver in Python, fast for tuples of up to 8 numbers (although duplicate entries can allow for larger lengths).
 
-Allowed operations are +, -, \*, /, \*\*. Fractional exponentiation is not allowed (technically not a well-defined function). Intermediate non-integer numbers within 0.005 of an integer are not allowed (due to floating point imprecision). Note that floating point imprecision can still occur.
+Allowed operations are +, -, \*, /, \*\*. Initial tuple and target must be all positive integers. Fractional exponentiation is not allowed (technically not a well-defined function). Intermediate non-integer numbers within 0.005 of an integer are not allowed (due to floating point imprecision). Note that floating point imprecision can still occur.
 
 Usage in shell (run solver.py): solve(a, t, m=None)
 - a = array of initial values
