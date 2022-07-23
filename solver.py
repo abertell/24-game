@@ -21,12 +21,10 @@ def check(x):
 def op1(a,b):
     v = a+b
     if check(v): return v
-    return None
 
 def op2(a,b):
     v = a-b
     if check(v): return v
-    return None
 
 def op2R(a,b):
     return op2(b,a)
@@ -34,13 +32,11 @@ def op2R(a,b):
 def op3(a,b):
     v = a*b
     if check(v): return v
-    return None
 
 def op4(a,b):
     if b==0: return None
     v = a/b
     if check(v): return v
-    return None
 
 def op4R(a,b):
     return op4(b,a)
@@ -57,14 +53,12 @@ def op5(a,b):
     if a==-1: return -1 if b&1 else 1
     if b*log(abs(a))>BIG: return None
     v = a**b
-    if v==0: return None
-    if abs(v)==1: return None
+    if v==0 or abs(v)==1: return None
     rv = round(v)
     if eq(v,rv):
         if abs(rv)<2: return None
         if abs(b)>1: return rv
     if check(v): return v
-    return None
 
 def op5alt(b,a):
     e = op4(1,a)
@@ -79,7 +73,6 @@ def op5alt(b,a):
         return None
     w = op5(v,a)
     if w and eq(w,b) and check(v): return v
-    return None
 
 def op5R(a,b):
     return op5(b,a)
@@ -143,8 +136,7 @@ def ip5(a,b):
             v = op4(log(b),log(-a))
             if v==None: return ()
             rv = round(v)
-            if not eq(v,rv): return ()
-            if rv&1: return ()
+            if not eq(v,rv) or rv&1: return ()
             return rv,
         return ()
     if b<0:
@@ -152,10 +144,8 @@ def ip5(a,b):
             v = op4(log(-b),log(-a))
             if v==None: return ()
             rv = round(v)
-            if not eq(v,rv): return ()
-            if rv-1&1: return ()
+            if not eq(v,rv) or rv-1&1: return ()
             return rv,
-        return ()
     return ()
 
 def ip5R(a,b):
@@ -180,15 +170,13 @@ def ip5R(a,b):
         return ()
     if b>0:
         v = op5alt(b,a)
-        if v==None: return ()
-        if not check(v): return ()
+        if v==None or not check(v): return ()
         if a&1 or v==0: return v,
         return v,-v
     if b<0:
         if a-1&1: return ()
         v = op5alt(-b,a)
-        if v==None: return ()
-        if not check(v): return ()
+        if v==None or not check(v): return ()
         return -v,
 
 ips = [ip1,ip2,ip2R,ip3,ip4,ip4R,ip5,ip5R]
@@ -251,7 +239,6 @@ def even_res(a):
         if v-1&1: return f'({v}**{any_res(a[:i]+a[i+1:])})'
     if n>2: return f'(({a[0]}+{a[1]})**{any_res(a[2:])})'
     if n==2: return any_res(a)
-    return None
 
 def solve(a,t,m=None):
     a = tuple(sorted(a))
@@ -315,24 +302,10 @@ def solve(a,t,m=None):
     def rtr(b,v):
         if b==na: return 'exp'
         b = cflip(na,b)
-        for vb in build[b]:
-            for ip in ips:
-                r = ip(vb,t)
-                for w in r:
-                    if eq(w,v):
-                        if ip==ip1: return '('+btr(b,vb)+'+'+'exp'+')'
-                        if ip==ip2: return '('+btr(b,vb)+'-'+'exp'+')'
-                        if ip==ip2R: return '('+'exp'+'-'+btr(b,vb)+')'
-                        if ip==ip3: return '('+btr(b,vb)+'*'+'exp'+')'
-                        if ip==ip4: return '('+btr(b,vb)+'/'+'exp'+')'
-                        if ip==ip4R: return '('+'exp'+'/'+btr(b,vb)+')'
-                        if ip==ip5: return '('+btr(b,vb)+'**'+'exp'+')'
-                        if ip==ip5R: return '('+'exp'+'**'+btr(b,vb)+')'
-        c = comp[b]
+        c = (b,)+comp[b]
         for j in range(len(c)):
             y = c[j]
-            f = c[-1-j]
-            x = cflip(na,f)
+            x = cflip(na,c[-j]) if j else na
             for vy in build[y]:
                 for vx in rev[x]:
                     for ip in ips:
@@ -419,4 +392,4 @@ def gen(n,la,ha,lt,ht):
     print(a,t)
     solve(a,t)
     
-gen(8,1,10,1000,100000)
+gen(8,1,10,100000,1000000)
