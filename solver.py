@@ -5,7 +5,7 @@ from collections import defaultdict as dd
 BIG = 32
 DIFF = 24
 SMALL = 5e-3
-ERR = 1e-10
+ERR = 1e-12
 special = (-1,0,1)
 
 def eq(x,y):
