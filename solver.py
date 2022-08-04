@@ -140,10 +140,7 @@ def ip5R(a,b):
         return ()
     if b==0: return ()
     if a==1: return b,
-    if a==-1:
-        v = op4(1,b)
-        if check(v): return v,
-        return ()
+    if a==-1: return op4(1,b),
     if b>0:
         v = op5alt(b,a)
         if v==None: return ()
@@ -346,11 +343,9 @@ def solve(a,t,m=None):
     return 1
 
 from random import *
-
 def gen(n,la,ha,lt,ht):
     a = choices(range(la,ha),k=n)
     t = randrange(lt,ht)
     print(a,t)
     solve(a,t)
-    
 gen(8,1,10,100000,1000000)
