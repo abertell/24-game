@@ -18,28 +18,31 @@ def check(x):
     rx = round(x)
     return eq(x,rx) or abs(x-rx)>SMALL
 
-def op1(a,b):
-    v = a+b
-    if check(v): return v
+def wrap(f):
+    def g(a,b):
+        if a and b and abs(log(abs(a))-log(abs(b)))>DIFF: return None
+        v = f(a,b)
+        if v==None or check(v): return v
+    return g
 
-def op2(a,b):
-    v = a-b
-    if check(v): return v
+def wrapt(f):
+    def g(a,b):
+        if a and b and abs(log(abs(a))-log(abs(b)))>DIFF: return ()
+        v = f(a,b)
+        if v==() or check(v[0]): return v
+        return ()
+    return g
 
-def op2R(a,b):
-    return op2(b,a)
-
-def op3(a,b):
-    v = a*b
-    if check(v): return v
+def op1(a,b): return a+b
+def op2(a,b): return a-b
+def op2R(a,b): return b-a
+def op3(a,b): return a*b
 
 def op4(a,b):
     if b==0: return None
-    v = a/b
-    if check(v): return v
+    return a/b
 
-def op4R(a,b):
-    return op4(b,a)
+def op4R(a,b): return op4(b,a)
 
 def op5(a,b):
     rb = round(b)
@@ -58,65 +61,27 @@ def op5(a,b):
     if eq(v,rv):
         if abs(rv)<2: return None
         if abs(b)>1: return rv
-    if check(v): return v
+    return v
 
-def op5alt(b,a):
-    e = op4(1,a)
-    if e==None: return None
-    if e*log(abs(b))>BIG: return None
-    v = b**e
-    if v==0: return None
-    if abs(v)==1 and abs(b)!=1: return None
-    rv = round(v)
-    if eq(v,rv):
-        if abs(rv)>1 and op5(rv,a)==b: return rv
-        return None
-    w = op5(v,a)
-    if w and eq(w,b) and check(v): return v
-
-def op5R(a,b):
-    return op5(b,a)
-
-ops = [op1,op2,op2R,op3,op4,op4R,op5,op5R]
+def op5R(a,b): return op5(b,a)
 
 anys = ["any","any-even"]
 
-def ip1(a,b):
-    if a and b and abs(log(abs(a))-log(abs(b)))>DIFF: return ()
-    v = b-a
-    if check(v): return v,
-    return ()
-
-def ip2(a,b):
-    if a and b and abs(log(abs(a))-log(abs(b)))>DIFF: return ()
-    v = a-b
-    if check(v): return v,
-    return ()
-
-def ip2R(a,b):
-    if a and b and abs(log(abs(a))-log(abs(b)))>DIFF: return ()
-    v = a+b
-    if check(v): return v,
-    return ()
+def ip1(a,b): return b-a,
+def ip2(a,b): return a-b,
+def ip2R(a,b): return a+b,
 
 def ip3(a,b):
     if a==b==0: return "any",
-    v = op4(b,a)
-    if check(v): return v,
-    return ()
+    return op4(b,a),
 
 def ip4(a,b):
     if a==0: return ()
-    v = op4(a,b)
-    if check(v): return v,
-    return ()
+    return op4(a,b),
 
 def ip4R(a,b):
     if a==0: return ()
-    if a and b and abs(log(abs(a))-log(abs(b)))>DIFF: return ()
-    v = a*b
-    if check(v): return v,
-    return ()
+    return a*b,
 
 def ip5(a,b):
     if b==1:
@@ -148,12 +113,23 @@ def ip5(a,b):
             return rv,
     return ()
 
+def op5alt(b,a):
+    e = op4(1,a)
+    if e==None or e*log(abs(b))>BIG: return None
+    v = b**e
+    if v==0 or(abs(v)==1 and abs(b)!=1): return None
+    rv = round(v)
+    if eq(v,rv):
+        if abs(rv)>1 and op5(rv,a)==b: return rv
+        return None
+    w = op5(v,a)
+    if w and eq(w,b): return v
+
 def ip5R(a,b):
     res = ()
     if b==1: res = 1,
     ra = round(a)
-    if not eq(a,ra): return res
-    if ra==0 and a!=0: return res
+    if not eq(a,ra) or(ra==0 and a!=0): return res
     a = ra
     if b==1:
         if a-1&1: res = 1,-1
@@ -170,16 +146,30 @@ def ip5R(a,b):
         return ()
     if b>0:
         v = op5alt(b,a)
-        if v==None or not check(v): return ()
+        if v==None: return ()
         if a&1 or v==0: return v,
         return v,-v
     if b<0:
         if a-1&1: return ()
         v = op5alt(-b,a)
-        if v==None or not check(v): return ()
+        if v==None: return ()
         return -v,
 
-ips = [ip1,ip2,ip2R,ip3,ip4,ip4R,ip5,ip5R]
+class Op():
+    def __init__(self,action,sym,rev):
+        self.action = action
+        self.sym = sym
+        self.rev = rev
+    def __call__(self,a,b):
+        return self.action(a,b)
+    def rep(self,a,b):
+        if self.rev: return f'({b}{self.sym}{a})'
+        return f'({a}{self.sym}{b})'
+
+ops = [Op(op1,'+',0),Op(op2,'-',0),Op(op2R,'-',1),Op(op3,'*',0),Op(op4,'/',0),Op(op4R,'/',1),Op(op5,'**',0),Op(op5R,'**',1)]
+ips = [Op(ip1,'+',0),Op(ip2,'-',0),Op(ip2R,'-',1),Op(ip3,'*',0),Op(ip4,'/',0),Op(ip4R,'/',1),Op(ip5,'**',0),Op(ip5R,'**',1)]
+for op in ops: op.action = wrap(op.action)
+for ip in ips: ip.action = wrapt(ip.action)
 
 def comb(a,n,prefix=()):
     used = set()
@@ -288,15 +278,7 @@ def solve(a,t,m=None):
                 for vf in build[f]:
                     for op in ops:
                         w = op(vy,vf)
-                        if eq(w,v):
-                            if op==op1: return '('+btr(y,vy)+'+'+btr(f,vf)+')'
-                            if op==op2: return '('+btr(y,vy)+'-'+btr(f,vf)+')'
-                            if op==op2R: return '('+btr(f,vf)+'-'+btr(y,vy)+')'
-                            if op==op3: return '('+btr(y,vy)+'*'+btr(f,vf)+')'
-                            if op==op4: return '('+btr(y,vy)+'/'+btr(f,vf)+')'
-                            if op==op4R: return '('+btr(f,vf)+'/'+btr(y,vy)+')'
-                            if op==op5: return '('+btr(y,vy)+'**'+btr(f,vf)+')'
-                            if op==op5R: return '('+btr(f,vf)+'**'+btr(y,vy)+')'
+                        if eq(w,v): return op.rep(btr(y,vy),btr(f,vf))
         return '???'
     
     def rtr(b,v):
@@ -311,16 +293,7 @@ def solve(a,t,m=None):
                     for ip in ips:
                         r = ip(vy,vx)
                         for w in r:
-                            if eq(w,v):
-                                if ip==ip1: exp = '('+btr(y,vy)+'+'+'exp'+')'
-                                if ip==ip2: exp = '('+btr(y,vy)+'-'+'exp'+')'
-                                if ip==ip2R: exp = '('+'exp'+'-'+btr(y,vy)+')'
-                                if ip==ip3: exp = '('+btr(y,vy)+'*'+'exp'+')'
-                                if ip==ip4: exp = '('+btr(y,vy)+'/'+'exp'+')'
-                                if ip==ip4R: exp = '('+'exp'+'/'+btr(y,vy)+')'
-                                if ip==ip5: exp = '('+btr(y,vy)+'**'+'exp'+')'
-                                if ip==ip5R: exp = '('+'exp'+'**'+btr(y,vy)+')'
-                                return rtr(x,vx).replace('exp',exp)
+                            if eq(w,v): return rtr(x,vx).replace('exp',ip.rep(btr(y,vy),'exp'))
         return '!!!'
     
     def run():
@@ -373,15 +346,7 @@ def solve(a,t,m=None):
     sx = rtr(x,ix)
     if code==1: sf = btr(f,vf)
     else: sf = vf
-    if ip==ip1: exp = f'({sy}+{sf})'
-    elif ip==ip2: exp = f'({sy}-{sf})'
-    elif ip==ip2R: exp = f'({sf}-{sy})'
-    elif ip==ip3: exp = f'({sy}*{sf})'
-    elif ip==ip4: exp = f'({sy}/{sf})'
-    elif ip==ip4R: exp = f'({sf}/{sy})'
-    elif ip==ip5: exp = f'({sy}**{sf})'
-    else: exp = f'({sf}**{sy})'
-    print(sx.replace('exp',exp)[1:-1])
+    print(sx.replace('exp',ip.rep(sy,sf))[1:-1])
     return 1
 
 from random import *
