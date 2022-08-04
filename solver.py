@@ -246,7 +246,6 @@ def solve(a,t,m=None):
     comp,size,orig = preprocess(a)
     na = len(size)-1
     cflip = lambda a,b: comp[a][-1-comp[a].index(b)]
-    
     x = px = 0
     while size[x]==1: build[x],x = list(orig[x]),x+1
     for i in range(2,m+1):
@@ -322,14 +321,12 @@ def solve(a,t,m=None):
                                             return 2,v1,y,v2,x,w,f,ip
                                         if v=="any-even":
                                             w = even_res(orig[f])
-                                            if w:
-                                                return 3,v1,y,v2,x,w,f,ip
+                                            if w: return 3,v1,y,v2,x,w,f,ip
                                     else:
                                         if size[f]>m: rev[f].append(v)
                                         else:
                                             bx = B(build[f],v)
-                                            if bx<len(build[f]) and eq(build[f][bx],v):
-                                                return 1,v1,y,v2,x,v,f,ip
+                                            if bx<len(build[f]) and eq(build[f][bx],v): return 1,v1,y,v2,x,v,f,ip
                 x-=1
             nx = x
             while size[nx]==i-1: nx-=1
@@ -340,7 +337,6 @@ def solve(a,t,m=None):
         print("No solution")
         return 0
     print("Solution found")
-    
     code,vy,y,ix,x,vf,f,ip = res
     sy = btr(y,vy)
     sx = rtr(x,ix)
