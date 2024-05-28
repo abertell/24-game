@@ -355,8 +355,12 @@ def solve(a,t,m=None):
                                         if size[f]>m: rev[f].append(v)
                                         else:
                                             bx = B(build[f],v)
-                                            if bx<len(build[f]) and eq(build[f][bx],v):
-                                                return 1,v1,y,v2,x,v,f,ip
+                                            if bx<len(build[f]):
+                                                bx += 1
+                                                while bx>0 and (bx==len(build[f]) or v<=build[f][bx]):
+                                                    bx -= 1
+                                                    if eq(build[f][bx],v):
+                                                        return 1,v1,y,v2,x,v,f,ip
                 x-=1
             nx = x
             while size[nx]==i-1: nx-=1
